@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creation AI</title>
+    <style>
+        : root {
+            --primary:  #667eea;
+            --secondary:  #764ba2;
+            --bg-chat: #f5f5f5;
+            --bg-container: #ffffff;
+            --text:  #333333;
+            --user-msg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bot-msg: #ffffff;
+        }
+
+        . theme-purple { --primary: #667eea; --secondary: #764ba2; }
+        .theme-blue { --primary: #4facfe; --secondary: #00f2fe; }
+        .theme-green { --primary: #43e97b; --secondary: #38f9d7; }
+        .theme-orange { --primary: #fa709a; --secondary: #fee140; }
+        .theme-red { --primary: #f83600; --secondary: #f9d423; }
+        .theme-pink { --primary: #ff6ec4; --secondary: #7873f5; }
+        .theme-teal { --primary: #16a085; --secondary: #2ecc71; }
+        .theme-sunset { --primary: #ff6b6b; --secondary: #feca57; }
+        .theme-ocean { --primary: #108dc7; --secondary: #ef8e38; }
+        .theme-forest { --primary: #134e5e; --secondary: #71b280; }
+        .theme-lavender { --primary: #a8edea; --secondary: #fed6e3; }
+        .theme-fire { --primary: #eb3349; --secondary: #f45c43; }
+        .theme-sky { --primary: #56ccf2; --secondary: #2f80ed; }
+        .theme-grape { --primary: #8e2de2; --secondary: #4a00e0; }
+        .theme-mint { --primary: #00b09b; --secondary: #96c93d; }
+
+        . dark-mode {
+            --bg-chat: #1a1a1a;
+            --bg-container: #2d2d2d;
+            --text: #ffffff;
+            --bot-msg: #3a3a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:  linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            background: var(--bg-container);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight:  bold;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        . icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius:  50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background:  rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bg-chat);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform:  translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message. user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius:  18px;
+            word-wrap: break-word;
+            color: var(--text);
+        }
+
+        .message.user .message-content {
+            background: var(--user-msg);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        . message.bot .message-content {
+            background: var(--bot-msg);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .message.bot .message-content {
+            color: #ffffff;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: var(--bg-container);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            gap:  10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            background: var(--bg-container);
+            color: var(--text);
+        }
+
+        #userInput: focus {
+            border-color:  var(--primary);
+        }
+
+        #sendBtn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        #sendBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal. active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-container);
+            padding: 30px;
+            border-radius: 15px;
+            max-width:  500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: var(--text);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .modal-content h3 {
+            margin:  15px 0 10px 0;
+            color: var(--text);
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin:  20px 0;
+        }
+
+        .theme-option {
+            height: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+            border-color: white;
+        }
+
+        .theme-option.active {
+            border-color: white;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        .theme-option.active:: after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform:  translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin:  20px 0;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding:  12px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--text);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .mode-btn. active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .close-modal {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius:  10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .close-modal:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        input[type="text"], input[type="password"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            font-size:  16px;
+            background:  var(--bg-container);
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        . dark-mode . info-text {
+            color:  #aaa;
+        }
+
+        . setting-group {
+            margin-bottom: 25px;
+        }
+
+        . model-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 12px;
+            border-radius:  8px;
+            margin:  10px 0;
+            font-size: 14px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .dark-mode .model-info {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-secondary {
+            background: #2196f3 !important;
+        }
+
+        .btn-danger {
+            background: #f44336 !important;
+        }
+
+        .btn-gray {
+            background: #666 !important;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius:  8px;
+            margin:  10px 0;
+            border-left: 4px solid #c62828;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #2e7d32;
+            font-size:  14px;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration:  none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="theme-purple">
+    <!-- API Setup Modal -->
+    <div id="apiSetup" class="modal active">
+        <div class="modal-content">
+            <h2>🔑 Setup API Key</h2>
+            <p class="info-text">Masukkan API Key Groq Anda (dimulai dengan gsk_): </p>
+            <input type="password" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxx">
+            <div id="apiError" style="display: none;"></div>
+            <button class="close-modal" onclick="saveApiKey()" id="apiSaveBtn">Simpan & Mulai Chat</button>
+            <p class="info-text" style="margin-top: 15px;">
+                Belum punya API Key? <br>
+                Dapatkan gratis di:  <a href="https://console.groq.com" target="_blank">console.groq.com</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Theme Modal -->
+    <div id="themeModal" class="modal">
+        <div class="modal-content">
+            <h2>🎨 Pilih Tema Warna</h2>
+            
+            <h3>Mode: </h3>
+            <div class="mode-toggle">
+                <button class="mode-btn active" onclick="setMode('light')">☀️ Terang</button>
+                <button class="mode-btn" onclick="setMode('dark')">🌙 Gelap</button>
+            </div>
+
+            <h3>Tema Warna:</h3>
+            <div class="theme-grid">
+                <div class="theme-option active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="setTheme('purple')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="setTheme('blue')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="setTheme('green')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" onclick="setTheme('orange')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #f83600 0%, #f9d423 100%);" onclick="setTheme('red')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #ff6ec4 0%, #7873f5 100%);" onclick="setTheme('pink')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #16a085 0%, #2ecc71 100%);" onclick="setTheme('teal')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);" onclick="setTheme('sunset')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #108dc7 0%, #ef8e38 100%);" onclick="setTheme('ocean')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);" onclick="setTheme('forest')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" onclick="setTheme('lavender')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);" onclick="setTheme('fire')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%);" onclick="setTheme('sky')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);" onclick="setTheme('grape')"></div>
+                <div class="theme-option" style="background:  linear-gradient(135deg, #00b09b 0%, #96c93d 100%);" onclick="setTheme('mint')"></div>
+            </div>
+
+            <button class="close-modal" onclick="closeModal('themeModal')">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>⚙️ Pengaturan</h2>
+            
+            <div class="setting-group">
+                <h3>🌍 Bahasa / Language: </h3>
+                <p class="info-text">Pilih bahasa interface</p>
+                <select id="langSelect" onchange="changeLanguage()">
+                    <option value="id">🇮🇩 Bahasa Indonesia</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <h3>🤖 Pilih Model AI: </h3>
+                <p class="info-text">Pilih model sesuai kebutuhan Anda</p>
+                <select id="modelSelect" onchange="saveModel()">
+                    <option value="llama-3.3-70b-versatile">🚀 Llama 3.3 70B Versatile ⭐</option>
+                    <option value="llama-3.1-8b-instant">⚡ Llama 3.1 8B Instant</option>
+                    <option value="mixtral-8x7b-32768">🎯 Mixtral 8x7B</option>
+                </select>
+                <div class="model-info" id="modelInfo">Model paling pintar dan kreatif.  Cocok untuk brainstorming, menulis, coding kompleks, dan problem solving. </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>💬 Pesan Sambutan:</h3>
+                <p class="info-text">Ubah pesan sambutan sesuai keinginan Anda</p>
+                <textarea id="welcomeMessage" placeholder="Halo! Saya Creation AI... "></textarea>
+                <button class="close-modal" onclick="saveWelcomeMessage()">Simpan Pesan</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>📥 Export Chat: </h3>
+                <p class="info-text">Download riwayat percakapan</p>
+                <button class="close-modal btn-secondary" onclick="exportChat()">💾 Download Chat History</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>🗑️ Reset Chat:</h3>
+                <p class="info-text">Hapus semua percakapan</p>
+                <button class="close-modal btn-danger" onclick="resetChat()">Hapus Semua Chat</button>
+            </div>
+
+            <button class="close-modal btn-gray" onclick="closeModal('settingsModal')">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-title">🤖 Creation AI</div>
+            <div class="header-icons">
+                <button class="icon-btn" onclick="openModal('themeModal')" title="Tema">🎨</button>
+                <button class="icon-btn" onclick="openModal('settingsModal')" title="Pengaturan">⚙️</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-container">
+            <input type="text" id="userInput" placeholder="Ketik pesan Anda..." onkeypress="handleKeyPress(event)">
+            <button id="sendBtn" onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        // === Chatbot Main Script ===
+        let apiKey = '';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        let conversationHistory = [];
+        let selectedModel = 'llama-3.3-70b-versatile';
+        let currentLang = 'id';
+        const DEFAULT_WELCOME = 'Halo! Saya Creation AI, asisten kreatif Anda.  Siap membantu brainstorming, menulis, coding, dan kreativitas lainnya!  😊';
+
+        const SYSTEM_PROMPT = {
+            role: 'system',
+            content: 'Kamu adalah Creation AI, asisten AI yang fokus pada kreativitas dan produktivitas. Kepribadianmu:  ramah, inspiratif, dan selalu positif. Keahlianmu: brainstorming, menulis, coding, desain, problem solving.  Selalu jawab dalam Bahasa Indonesia kecuali user meminta bahasa lain.'
+        };
+
+        // Initialize on page load
+        window.onload = function() {
+            const savedKey = localStorage.getItem('groq_api_key');
+            if (savedKey) {
+                apiKey = savedKey;
+                document.getElementById('apiSetup').classList.remove('active');
+            }
+
+            const savedTheme = localStorage.getItem('theme') || 'purple';
+            const savedMode = localStorage.getItem('mode') || 'light';
+            setTheme(savedTheme, false);
+            setMode(savedMode, false);
+
+            selectedModel = localStorage.getItem('selected_model') || 'llama-3.3-70b-versatile';
+            document.getElementById('modelSelect').value = selectedModel;
+            updateModelInfo(selectedModel);
+
+            currentLang = localStorage.getItem('lang') || 'id';
+            document.getElementById('langSelect').value = currentLang;
+
+            loadWelcomeMessage();
+            loadChatHistory();
+            conversationHistory = [SYSTEM_PROMPT];
+        };
+
+        // Sanitize text to prevent XSS
+        function sanitize(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Error & Success Handlers
+        function showError(message, id = 'apiError') {
+            const errorDiv = document.getElementById(id);
+            if (errorDiv) {
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                errorDiv.style. display = 'block';
+            }
+        }
+
+        function hideError(id = 'apiError') {
+            const errorDiv = document.getElementById(id);
+            if (errorDiv) errorDiv.style.display = 'none';
+        }
+
+        function showSuccess(message, id = 'successMsg') {
+            const successDiv = document.getElementById(id);
+            if (successDiv) {
+                successDiv.className = 'success-message';
+                successDiv. textContent = message;
+                successDiv.style.display = 'block';
+                setTimeout(() => { successDiv.style.display = 'none'; }, 3000);
+            }
+        }
+
+        // API Key Management
+        async function saveApiKey() {
+            const inputKey = document.getElementById('apiKeyInput').value.trim();
+            const saveBtn = document.getElementById('apiSaveBtn');
+            hideError();
+
+            if (inputKey. length === 0) {
+                showError('⚠️ Mohon masukkan API Key! ');
+                return;
+            }
+
+            if (! inputKey.startsWith('gsk_')) {
+                showError('⚠️ API Key harus diawali dengan gsk_');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            try {
+                localStorage.setItem('groq_api_key', inputKey);
+                apiKey = inputKey;
+                document.getElementById('apiSetup').classList.remove('active');
+            } catch (err) {
+                showError('❌ Gagal menyimpan API Key:  ' + err.message);
+            }
+            saveBtn.disabled = false;
+        }
+
+        // Theme Management
+        function setTheme(theme, save = true) {
+            const body = document.body;
+            const themes = ['purple', 'blue', 'green', 'orange', 'red', 'pink', 'teal', 'sunset', 'ocean', 'forest', 'lavender', 'fire', 'sky', 'grape', 'mint'];
+            
+            body.className = body.className.replace(/theme-\w+/, '');
+            body.classList.add('theme-' + theme);
+
+            document.querySelectorAll('. theme-option').forEach(opt => opt.classList.remove('active'));
+            const idx = themes.indexOf(theme);
+            if (idx !== -1) {
+                document.querySelectorAll('.theme-option')[idx].classList.add('active');
+            }
+
+            if (save) localStorage.setItem('theme', theme);
+        }
+
+        function setMode(mode, save = true) {
+            const body = document. body;
+            const modeButtons = document.querySelectorAll('. mode-btn');
+            
+            if (mode === 'dark') {
+                body.classList. add('dark-mode');
+                modeButtons[0].classList.remove('active');
+                modeButtons[1].classList.add('active');
+            } else {
+                body.classList.remove('dark-mode');
+                modeButtons[0].classList.add('active');
+                modeButtons[1].classList.remove('active');
+            }
+
+            if (save) localStorage.setItem('mode', mode);
+        }
+
+        // Modal Management
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Language Settings
+        function changeLanguage() {
+            const sel = document.getElementById('langSelect');
+            currentLang = sel.value;
+            localStorage.setItem('lang', currentLang);
+            // Future:  Implement full i18n translations
+        }
+
+        // Model Selection
+        function saveModel() {
+            const selModel = document.getElementById('modelSelect').value;
+            selectedModel = selModel;
+            localStorage.setItem('selected_model', selectedModel);
+            updateModelInfo(selModel);
+        }
+
+        function updateModelInfo(model) {
+            const info = {
+                'llama-3.3-70b-versatile': '🚀 Model paling pintar dan kreatif.  Cocok untuk brainstorming, menulis, coding kompleks, dan problem solving.',
+                'llama-3.1-8b-instant': '⚡ Model ringan dan cepat, cocok untuk percakapan singkat dan response time cepat.',
+                'mixtral-8x7b-32768': '🎯 Model Mixtral ini bagus untuk berbagai kebutuhan AI dengan memori percakapan panjang.',
+            };
+            const infoDiv = document.getElementById('modelInfo');
+            if (infoDiv) infoDiv.textContent = info[model] || 'Model tidak ditemukan';
+        }
+
+        // Welcome Message
+        function loadWelcomeMessage() {
+            const welcome = localStorage.getItem('welcome_message') || DEFAULT_WELCOME;
+            const welcomeInput = document.getElementById('welcomeMessage');
+            if (welcomeInput) welcomeInput.value = welcome;
+            
+            if (! document.getElementById('chatMessages').innerHTML. trim()) {
+                appendMessage('bot', welcome);
+            }
+        }
+
+        function saveWelcomeMessage() {
+            const welcome = document.getElementById('welcomeMessage').value.trim();
+            if (welcome. length === 0) {
+                alert('⚠️ Pesan tidak boleh kosong!');
+                return;
+            }
+            localStorage.setItem('welcome_message', welcome);
+            alert('✅ Pesan sambutan berhasil disimpan! ');
+        }
+
+        // Append Message to Chat
+        function appendMessage(sender, text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgEl = document.createElement('div');
+            msgEl.className = 'message ' + (sender === 'user' ? 'user' : 'bot');
+            msgEl.innerHTML = `<div class="message-content">${sanitize(text)}</div>`;
+            messagesDiv.appendChild(msgEl);
+            messagesDiv.scrollTop = messagesDiv. scrollHeight;
+        }
+
+        // Chat History Management
+        function loadChatHistory() {
+            const data = localStorage.getItem('chat_history');
+            if (!data) return;
+            try {
+                const arr = JSON.parse(data);
+                arr.forEach(obj => {
+                    if (obj.sender && obj.text) {
+                        appendMessage(obj.sender, obj.text);
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading chat history:', err);
+            }
+        }
+
+        function saveChatHistory() {
+            try {
+                const arr = Array.from(document.querySelectorAll('.message')).map(m => ({
+                    sender: m.classList.contains('user') ? 'user' : 'bot',
+                    text: m.querySelector('.message-content').textContent
+                }));
+                localStorage.setItem('chat_history', JSON. stringify(arr));
+            } catch (err) {
+                console. error('Error saving chat history:', err);
+            }
+        }
+
+        function exportChat() {
+            const data = localStorage.getItem('chat_history') || '[]';
+            try {
+                const blob = new Blob([data], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `chat_history_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                alert('✅ Chat history berhasil diunduh!');
+            } catch (err) {
+                alert('❌ Gagal export chat:  ' + err.message);
+            }
+        }
+
+        function resetChat() {
+            if (confirm('⚠️ Anda yakin ingin menghapus semua chat?  Tindakan ini tidak bisa dibatalkan.')) {
+                document.getElementById('chatMessages').innerHTML = '';
+                localStorage.removeItem('chat_history');
+                conversationHistory = [SYSTEM_PROMPT];
+                loadWelcomeMessage();
+                alert('✅ Chat berhasil direset!');
+            }
+        }
+
+        // Chat Input & Sending
+        function handleKeyPress(e) {
+            if (e. key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            let userMessage = userInput.value.trim();
+
+            if (! userMessage) return;
+
+            if (! apiKey) {
+                alert('⚠️ Mohon setup API Key terlebih dahulu!');
+                openModal('apiSetup');
+                return;
+            }
+
+            appendMessage('user', userMessage);
+            userInput.value = '';
+            conversationHistory.push({ role: 'user', content: userMessage });
+
+            // Show loading state
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'message bot';
+            loadingMsg.innerHTML = `<div class="message-content"><span class="loading"></span> <span>Menulis jawaban...</span></div>`;
+            document.getElementById('chatMessages').appendChild(loadingMsg);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        messages: conversationHistory,
+                        temperature: 0.7,
+                        max_tokens: 1024,
+                        top_p: 1
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData. error?. message || 'API Error:  ' + response.statusText);
+                }
+
+                const data = await response.json();
+                const botReply = data?. choices?.[0]?.message?. content || 'Maaf, terjadi error saat memproses respons. ';
+
+                conversationHistory.push({ role: 'assistant', content: botReply });
+                loadingMsg.remove();
+                appendMessage('bot', botReply);
+                saveChatHistory();
+
+            } catch (err) {
+                loadingMsg.remove();
+                const errorMsg = err.message. includes('401') ? 
+                    '❌ API Key tidak valid.  Silakan cek kembali.' :
+                    '❌ Error:  ' + err.message;
+                appendMessage('bot', errorMsg);
+            }
+
+            sendBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
